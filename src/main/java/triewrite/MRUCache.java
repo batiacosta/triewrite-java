@@ -1,5 +1,6 @@
 package triewrite;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,6 +28,22 @@ class MRUCache {
      */
 	void addSearchTerm(String term) {
 		//write your code here
+		if (cache.containsKey(term)) {
+            // If the term already exists, move it to the front
+            MRUNode node = cache.get(term);
+            recentList.moveToFront(node);
+        } else {
+            // If the term is new, create a new node
+            MRUNode newNode = new MRUNode(term);
+            recentList.addToFront(newNode);
+            cache.put(term, newNode);
+
+            // If capacity is exceeded, remove the least recently used term
+            if (cache.size() > capacity) {
+                MRUNode lruNode = recentList.removeLast();
+                cache.remove(lruNode.term);
+            }
+        }
 	}
 
 	
@@ -37,7 +54,13 @@ class MRUCache {
 	List<String> getSearchTerms() {
 		
 		//write your code here
-		return null;
+		List<String> terms = new ArrayList<>();
+        MRUNode current = recentList.head.next;
+        while (current != recentList.tail) {
+            terms.add(current.term);
+            current = current.next;
+        }
+        return terms;
 	}
 
 	/** size() returns the size of cache.
@@ -74,18 +97,30 @@ class MRUCache {
 		//-----------This method is tested in JUnit test-cases.----------
 		MRULinkedList() {
 			//write your code here
+			head = new MRUNode(null);
+            tail = new MRUNode(null);
+            head.next = tail;
+            tail.prev = head;
 		}
 
 		// Add a new node to the front
 		//-----------This method is tested in JUnit test-cases.----------
 		void addToFront(MRUNode node) {
 			//write your code here
+			node.next = head.next;
+            node.prev = head;
+            head.next.prev = node;
+            head.next = node;
 		}
 
 		// Move an existing node to the front
 		//-----------This method is tested in JUnit test-cases.----------
 		void moveToFront(MRUNode node) {
 			//write your code here
+			node.prev.next = node.next;
+            node.next.prev = node.prev;
+
+            addToFront(node);
 		}
 
 
@@ -93,7 +128,13 @@ class MRUCache {
 		//-----------This method is tested in JUnit test-cases.----------
 		MRUNode removeLast() {
 			//write your code here
-			return null;
+			if (tail.prev == head) {
+                return null; // List is empty
+            }
+            MRUNode lruNode = tail.prev;
+            lruNode.prev.next = tail;
+            tail.prev = lruNode.prev;
+            return lruNode;
 		}
 
 	}

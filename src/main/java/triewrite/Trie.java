@@ -1,5 +1,6 @@
 package triewrite;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,12 @@ public class Trie {
 	 */
 	void insert(String word) {
 		//write your code here
+		TrieNode current = root;
+        for (char c : word.toCharArray()) {
+            current.children.putIfAbsent(c, new TrieNode());
+            current = current.children.get(c);
+        }
+        current.isEndOfWord = true; // Mark the end of the word
 	}
 
 	/**getWordsWithPrefix() returns a list of all words that have the given prefix. 
@@ -39,6 +46,30 @@ public class Trie {
 	 */
 	List<String> getWordsWithPrefix(String prefix) {
 		//write your code here
-		return null;
+		List<String> result = new ArrayList<>();
+        TrieNode current = root;
+
+        // Traverse the Trie to find the node corresponding to the prefix
+        for (char c : prefix.toCharArray()) {
+            if (!current.children.containsKey(c)) {
+                return result; // If prefix is not found, return an empty list
+            }
+            current = current.children.get(c);
+        }
+
+        // Perform a DFS from the prefix node to collect all words
+        collectWords(current, new StringBuilder(prefix), result);
+        return result;
 	}
+
+	private void collectWords(TrieNode node, StringBuilder prefix, List<String> result) {
+        if (node.isEndOfWord) {
+            result.add(prefix.toString());
+        }
+        for (Map.Entry<Character, TrieNode> entry : node.children.entrySet()) {
+            prefix.append(entry.getKey());
+            collectWords(entry.getValue(), prefix, result);
+            prefix.deleteCharAt(prefix.length() - 1); // Backtrack
+        }
+    }
 }
