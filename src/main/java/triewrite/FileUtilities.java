@@ -59,10 +59,13 @@ s	 */
 		//write your code here
 		String[] words = text.split("[ .,!?;:\"()\\[\\]{}<>\\-\\n]+"); // Tokenize the text
 		System.out.println("Total words: " + words.length);
-		int position = 0;
 
+		int position = 0; // Track the position of each character in the text
 		for (String word : words) {
 			if (!word.isBlank()) { // Ensure the word is not empty
+				// Find the starting position of the word
+				position = text.indexOf(word, position);
+
 				Word wordObj = new Word(word.toLowerCase(), position);
 				BinarySearchTree.Node<Word> existingNode = wordTree.find(wordObj);
 
@@ -73,8 +76,10 @@ s	 */
 					// If the word does not exist, insert it into the tree
 					wordTree.insert(wordObj);
 				}
+
+				// Move the position forward for the next word
+				position += word.length(); // Ensure position moves past the current word
 			}
-			position += word.length() + 1; // Account for the word and the delimiter
 		}
 
 		System.out.println("Word tree size: " + wordTree.size());
@@ -103,13 +108,15 @@ s	 */
 	 */
 	int countWords(String fileContent) {
 		//write your code here;
+		wordTree = new BinarySearchTree<>();
 		buildWordTree(fileContent);
-        int count = 0;
-        List<BinarySearchTree.Node<Word>> nodes = wordTree.inorder(wordTree.root());
-        for (BinarySearchTree.Node<Word> node : nodes) {
-            count += node.getElement().positions.size();
-        }
-        return count;
+
+		int count = 0;
+		List<BinarySearchTree.Node<Word>> nodes = wordTree.inorder(wordTree.root());
+		for (BinarySearchTree.Node<Word> node : nodes) {
+			count += node.getElement().positions.size();
+		}
+		return count;
 	}
 
 	/** countUniqueWords() takes a string, builds its wordTree,
